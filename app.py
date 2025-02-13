@@ -7,7 +7,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 # Load and display the image from GitHub
-image_url = "https://raw.githubusercontent.com/USERNAME/REPO-NAME/BRANCH-NAME/title.JPG"  # Replace with actual URL
+image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
 response = requests.get(image_url)
 
 st.sidebar.title("Circular Motion Calculator")
