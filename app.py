@@ -4,10 +4,9 @@ import requests
 from io import BytesIO
 import math
 import numpy as np
-import plotly.graph_objects as go
 
 # Load and display the image from GitHub
-image_url = "https://github.com/kolbm/UCM/blob/main/title.jpg"  # Replace with actual URL
+image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
 response = requests.get(image_url)
 
 st.sidebar.title("Circular Motion Calculator")
@@ -20,80 +19,127 @@ if response.status_code == 200:
     except UnidentifiedImageError:
         st.error("The image could not be loaded. Please check the file format.")
 else:
-    st.warning("Failed to load the image. Please check the URL.")
+    st.error("Failed to load the image. Please check the URL.")
 
 # Dropdown for selecting Horizontal or Vertical mode
-app_option = st.sidebar.selectbox("Choose App Mode:", ["Horizontal Circular Motion", "Vertical Loop Motion"])
+app_option = st.sidebar.selectbox("Choose App Mode:", ["Horizontal", "Vertical"])
 
-if app_option == "Horizontal Circular Motion":
+if app_option == "Horizontal":
     st.title("Horizontal Circular Motion Calculator")
 
+    # Function definitions for horizontal motion
     def calculate_centripetal_force(mass, velocity, radius):
         return mass * velocity**2 / radius
 
     def calculate_centripetal_acceleration(velocity, radius):
         return velocity**2 / radius
 
-    # Sidebar inputs for Horizontal Motion
-    mass = st.sidebar.number_input("Mass (kg)", min_value=0.1, value=1000.0)
+    def calculate_normal_force(mass, angle_deg, gravitational_acceleration=10):
+        angle_rad = math.radians(angle_deg)
+        return mass * gravitational_acceleration / math.cos(angle_rad)
+
+    def calculate_gravitational_force(mass, gravitational_acceleration=10):
+        return mass * gravitational_acceleration
+
+    st.sidebar.header("Input Values")
+    case_option = st.sidebar.selectbox(
+        "Choose a scenario:",
+        ["Banked without Friction (μ = 0, θ ≠ 0)", "Banked with Friction (μ ≠ 0, θ ≠ 0)", "Unbanked with Friction (μ ≠ 0, θ = 0)"]
+    )
+
+    mass = st.sidebar.number_input("Mass of the car (kg)", min_value=0.1, value=1000.0)
     radius = st.sidebar.number_input("Radius of the curve (m)", min_value=1.0, value=50.0)
-    velocity = st.sidebar.number_input("Velocity (m/s)", min_value=1.0, value=30.0)
+    velocity = st.sidebar.number_input("Velocity of the car (m/s)", min_value=1.0, value=30.0)
 
-    # Plot: Centripetal Force vs Velocity
-    def plot_centripetal_force_vs_velocity(mass, radius):
-        velocities = np.linspace(0, 50, 100)
-        forces = mass * velocities**2 / radius
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=velocities, y=forces, mode='lines', name='Centripetal Force'))
-        fig.update_layout(
-            title="Centripetal Force vs. Velocity",
-            xaxis_title="Velocity (m/s)",
-            yaxis_title="Centripetal Force (N)",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig)
+    if case_option == "Banked without Friction (μ = 0, θ ≠ 0)":
+        angle = st.sidebar.number_input("Angle of the banked curve (degrees)", min_value=0.0, max_value=90.0, value=30.0)
 
-    st.subheader("Centripetal Force vs. Velocity Plot")
-    plot_centripetal_force_vs_velocity(mass, radius)
+    elif case_option == "Banked with Friction (μ ≠ 0, θ ≠ 0)":
+        angle = st.sidebar.number_input("Angle of the banked curve (degrees)", min_value=0.0, max_value=90.0, value=30.0)
+        coefficient_of_friction = st.sidebar.number_input("Coefficient of Static Friction (μ_s)", min_value=0.0, value=0.5)
 
-    # Display results for calculations
-    st.subheader("Calculation Results")
-    centripetal_force = calculate_centripetal_force(mass, velocity, radius)
-    centripetal_acceleration = calculate_centripetal_acceleration(velocity, radius)
-    st.write(f"Centripetal Force: **{centripetal_force:.2f} N**")
-    st.write(f"Centripetal Acceleration: **{centripetal_acceleration:.2f} m/s²**")
+    elif case_option == "Unbanked with Friction (μ ≠ 0, θ = 0)":
+        coefficient_of_friction = st.sidebar.number_input("Coefficient of Static Friction (μ_s)", min_value=0.0, value=0.5)
 
-elif app_option == "Vertical Loop Motion":
+    calculation_option = st.sidebar.selectbox(
+        "Select What to Calculate:",
+        ["Centripetal Force", "Centripetal Acceleration", "Gravitational Force", "Normal Force"]
+    )
+
+    st.subheader(f"Results for: {case_option} - {calculation_option}")
+
+    if calculation_option == "Centripetal Force":
+        st.latex(r"F_c = \frac{m v^2}{r}")
+        centripetal_force = calculate_centripetal_force(mass, velocity, radius)
+        st.write(f"Centripetal Force: **{centripetal_force:.2f} N**")
+
+    elif calculation_option == "Centripetal Acceleration":
+        st.latex(r"a_c = \frac{v^2}{r}")
+        centripetal_acceleration = calculate_centripetal_acceleration(velocity, radius)
+        st.write(f"Centripetal Acceleration: **{centripetal_acceleration:.2f} m/s²**")
+
+    elif calculation_option == "Gravitational Force":
+        st.latex(r"F_g = m \cdot g")
+        gravitational_force = calculate_gravitational_force(mass)
+        st.write(f"Gravitational Force: **{gravitational_force:.2f} N**")
+
+    elif calculation_option == "Normal Force":
+        if "Banked" in case_option:
+            st.latex(r"F_N = \frac{m \cdot g}{\cos(\theta)}")
+            normal_force = calculate_normal_force(mass, angle)
+        else:
+            st.latex(r"F_N = m \cdot g")
+            normal_force = calculate_gravitational_force(mass)
+        st.write(f"Normal Force: **{normal_force:.2f} N**")
+
+else:
     st.title("Vertical Loop Motion Calculator")
 
-    def calculate_centripetal_force(mass, velocity, radius):
-        return mass * velocity**2 / radius
+    def calculate_centripetal_acceleration(v, r):
+        return v**2 / r
 
-    # Sidebar inputs for Vertical Loop Motion
-    mass = st.sidebar.number_input("Mass (kg)", min_value=0.1, value=1.0)
-    radius = st.sidebar.number_input("Radius of the loop (m)", min_value=0.1, value=5.0)
-    velocity = st.sidebar.number_input("Velocity (m/s)", min_value=0.0, value=5.0)
+    def calculate_tangential_velocity(a, r):
+        return np.sqrt(a * r)
 
-    # Plot: Forces Around the Vertical Loop
-    def plot_vertical_loop_forces(mass, radius, velocity):
-        positions = np.linspace(0, 2 * np.pi, 100)
-        normal_forces = mass * (velocity**2 / radius + 10 * np.cos(positions))
-        gravitational_forces = mass * 10
+    def calculate_radius(v, a):
+        return v**2 / a
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=positions, y=normal_forces, mode='lines', name='Normal Force'))
-        fig.add_trace(go.Scatter(x=positions, y=np.full_like(positions, gravitational_forces), mode='lines', name='Gravitational Force'))
-        fig.update_layout(
-            title="Forces Around the Vertical Loop",
-            xaxis_title="Position (radians)",
-            yaxis_title="Force (N)",
-            template="plotly_white"
-        )
-        st.plotly_chart(fig)
+    def calculate_centripetal_force(m, v, r):
+        return m * v**2 / r
 
-    st.subheader("Forces Around the Vertical Loop")
-    plot_vertical_loop_forces(mass, radius, velocity)
+    def calculate_gravitational_force(m, g=10):
+        return m * g
 
-    # Display results for calculations
-    centripetal_force = calculate_centripetal_force(mass, velocity, radius)
-    st.write(f"Centripetal Force: **{centripetal_force:.2f} N**")
+    def calculate_normal_force_bottom(m, v, r, g=10):
+        return m * (v**2 / r + g)
+
+    def calculate_normal_force_top(m, v, r, g=10):
+        return m * (v**2 / r - g)
+
+    st.sidebar.header("Input Parameters")
+    loop_position = st.sidebar.selectbox("Select Loop Position:", ["Top of the Loop", "Bottom of the Loop"])
+    calculation_type = st.sidebar.selectbox(
+        "What would you like to solve for:",
+        ["Centripetal Acceleration", "Tangential Velocity", "Radius of the Loop", "Centripetal Force", "Normal/Tension Force", "Gravitational Force"]
+    )
+
+    if calculation_type == "Centripetal Acceleration":
+        st.latex(r"a_c = \frac{v^2}{r}")
+        radius = st.sidebar.number_input("Radius (m)", min_value=0.1, value=5.0)
+        velocity = st.sidebar.number_input("Tangential Velocity (m/s)", min_value=0.0, value=5.0)
+        acceleration = calculate_centripetal_acceleration(velocity, radius)
+        st.write(f"Centripetal Acceleration: {acceleration:.2f} m/s²")
+
+    elif calculation_type == "Tangential Velocity":
+        st.latex(r"v_T = \sqrt{a_c \cdot r}")
+        acceleration = st.sidebar.number_input("Centripetal Acceleration (m/s²)", min_value=0.1, value=5.0)
+        radius = st.sidebar.number_input("Radius (m)", min_value=0.1, value=5.0)
+        velocity = calculate_tangential_velocity(acceleration, radius)
+        st.write(f"Tangential Velocity: {velocity:.2f} m/s")
+
+    elif calculation_type == "Radius of the Loop":
+        st.latex(r"r = \frac{v^2}{a_c}")
+        velocity = st.sidebar.number_input("Tangential Velocity (m/s)", min_value=0.0, value=5.0)
+        acceleration = st.sidebar.number_input("Centripetal Acceleration (m/s²)", min_value=0.1, value=5.0)
+        radius = calculate_radius(velocity, acceleration)
+        st.write(f"Radius of the Loop: {radius:.2f} m")
