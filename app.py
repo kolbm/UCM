@@ -7,7 +7,7 @@ import numpy as np
 import plotly.graph_objects as go
 
 # Load and display the image from GitHub
-image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
+image_url = "https://github.com/kolbm/UCM/blob/main/title.JPG"  # Replace with actual URL
 response = requests.get(image_url)
 
 st.sidebar.title("Circular Motion Calculator")
@@ -28,18 +28,15 @@ app_option = st.sidebar.selectbox("Choose App Mode:", ["Horizontal", "Vertical"]
 if app_option == "Horizontal":
     st.title("Horizontal Circular Motion Calculator")
 
-    # Function definitions for horizontal motion
     def calculate_centripetal_force(mass, velocity, radius):
         return mass * velocity**2 / radius
 
     def calculate_centripetal_acceleration(velocity, radius):
         return velocity**2 / radius
 
-    # Sidebar inputs
     mass = st.sidebar.number_input("Mass of the car (kg)", min_value=0.1, value=1000.0)
     radius = st.sidebar.number_input("Radius of the curve (m)", min_value=1.0, value=50.0)
 
-    # Plot: Centripetal Force vs Velocity
     def plot_centripetal_force_vs_velocity(mass, radius):
         velocities = np.linspace(0, 50, 100)
         forces = mass * velocities**2 / radius
@@ -59,16 +56,13 @@ if app_option == "Horizontal":
 else:
     st.title("Vertical Loop Motion Calculator")
 
-    # Function definitions for vertical loop motion
     def calculate_centripetal_force(mass, velocity, radius):
         return mass * velocity**2 / radius
 
-    # Sidebar inputs
     mass = st.sidebar.number_input("Mass (kg)", min_value=0.1, value=1.0)
     radius = st.sidebar.number_input("Radius (m)", min_value=0.1, value=5.0)
     velocity = st.sidebar.number_input("Velocity (m/s)", min_value=0.0, value=5.0)
 
-    # Plot: Forces Around the Vertical Loop
     def plot_vertical_loop_forces(mass, radius, velocity):
         positions = np.linspace(0, 2 * np.pi, 100)
         normal_forces = mass * (velocity**2 / radius + 10 * np.cos(positions))
