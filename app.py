@@ -1,8 +1,15 @@
 import streamlit as st
+from PIL import Image
+import requests
 import math
 import numpy as np
 
-# Dropdown to select Horizontal or Vertical
+# Load and display the image from GitHub
+image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
+image = Image.open(requests.get(image_url, stream=True).raw)
+st.image(image, caption="App Title", use_column_width=True)
+
+# Dropdown for selecting Horizontal or Vertical
 app_option = st.sidebar.selectbox("Choose App Mode:", ["Horizontal", "Vertical"])
 
 if app_option == "Horizontal":
@@ -98,12 +105,12 @@ else:
         "What would you like to solve for:",
         ["Centripetal Acceleration", "Tangential Velocity", "Radius of the Loop", "Centripetal Force", "Normal/Tension Force", "Gravitational Force"]
     )
-    
+
     if calculation_type == "Centripetal Acceleration":
         radius = st.sidebar.number_input("Radius (m)", min_value=0.1, value=5.0)
         velocity = st.sidebar.number_input("Tangential Velocity (m/s)", min_value=0.0, value=5.0)
         acceleration = calculate_centripetal_acceleration(velocity, radius)
         st.write(f"Centripetal Acceleration: {acceleration:.2f} m/s²")
- 
-    # Continue with other calculations as per the original code for Vertical...
+
+    # Continue with other calculations based on calculation_type...
 
