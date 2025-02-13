@@ -104,6 +104,6 @@ else:
         velocity = st.sidebar.number_input("Tangential Velocity (m/s)", min_value=0.0, value=5.0)
         acceleration = calculate_centripetal_acceleration(velocity, radius)
         st.write(f"Centripetal Acceleration: {acceleration:.2f} m/s²")
-
+ 
     # Continue with other calculations as per the original code for Vertical...
 
