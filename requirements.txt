@@ -1,0 +1,2 @@
+streamlit==1.12.0  # Ensure a compatible version with your environment
+numpy==1.21.0
