@@ -6,7 +6,7 @@ import math
 import numpy as np
 
 # Load and display the image from GitHub
-image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
+image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.jpg"  # Replace with actual URL
 response = requests.get(image_url)
 
 st.sidebar.title("Circular Motion Calculator")
