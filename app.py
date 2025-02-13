@@ -1,15 +1,27 @@
 import streamlit as st
-from PIL import Image
+from PIL import Image, UnidentifiedImageError
 import requests
+from io import BytesIO
 import math
 import numpy as np
 
 # Load and display the image from GitHub
-image_url = "https://raw.githubusercontent.com/USERNAME/REPO-NAME/BRANCH-NAME/title.JPG"  # Replace with actual URL
-image = Image.open(requests.get(image_url, stream=True).raw)
-st.image(image, caption="App Title", use_column_width=True)
+image_url = "https://raw.githubusercontent.com/kolbm/UCM/refs/heads/main/title.JPG"  # Replace with actual URL
+response = requests.get(image_url)
 
-# Dropdown for selecting Horizontal or Vertical
+st.sidebar.title("Circular Motion Calculator")
+
+# Display the image above the dropdown
+if response.status_code == 200:
+    try:
+        image = Image.open(BytesIO(response.content))
+        st.image(image, caption="App Title", use_column_width=True)
+    except UnidentifiedImageError:
+        st.error("The image could not be loaded. Please check the file format.")
+else:
+    st.error("Failed to load the image. Please check the URL.")
+
+# Dropdown for selecting Horizontal or Vertical mode
 app_option = st.sidebar.selectbox("Choose App Mode:", ["Horizontal", "Vertical"])
 
 if app_option == "Horizontal":
@@ -131,4 +143,3 @@ else:
         acceleration = st.sidebar.number_input("Centripetal Acceleration (m/s²)", min_value=0.1, value=5.0)
         radius = calculate_radius(velocity, acceleration)
         st.write(f"Radius of the Loop: {radius:.2f} m")
-
